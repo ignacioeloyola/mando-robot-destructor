@@ -1,0 +1,27 @@
+<resources>
+    <!-- Accent Color -->
+    <color name="colorAccent">#EB5C36</color>
+
+    <!-- Primary Color (Slightly darker shade of the accent color) -->
+    <color name="colorPrimary">#D9532F</color>
+
+    <!-- Primary Dark Color (Even darker shade for status bar, etc.) -->
+    <color name="colorPrimaryDark">#B8421B</color>
+
+    <!-- Secondary Color (A complementary color) -->
+    <color name="colorSecondary">#F0A07E</color>
+
+    <!-- Text Colors (For readability on black and light backgrounds) -->
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="textColorSecondary">#CCCCCC</color>
+
+    <!-- Background Color -->
+    <color name="colorBackground">#000000</color>
+
+    <!-- Additional shades (optional, for more nuanced design) -->
+    <!-- Lighter shade of accent color for highlights or softer elements -->
+    <color name="colorAccentLight">#F2A17C</color>
+
+    <!-- Darker shade of accent color for deeper elements -->
+    <color name="colorAccentDark">#C34C2C</color>
+</resources>
