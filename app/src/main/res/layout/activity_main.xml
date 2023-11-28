@@ -71,8 +71,8 @@
     <ImageView
         android:contentDescription="@null"
         android:id="@+id/button_laser"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:background="@drawable/ic_laser"
         android:layout_marginEnd="@dimen/margin_large"
         app:layout_constraintEnd_toStartOf="@id/button_blades"
@@ -81,8 +81,8 @@
     <ImageView
         android:contentDescription="@null"
         android:id="@+id/button_blades"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:background="@drawable/ic_blades"
         android:layout_marginEnd="@dimen/margin_medium"
         app:layout_constraintEnd_toStartOf="@id/guideline_middle"
@@ -91,22 +91,22 @@
     <ImageView
         android:contentDescription="@null"
         android:id="@+id/button_smoke"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:background="@drawable/ic_smoke"
-        android:layout_marginStart="@dimen/margin_medium"
-        app:layout_constraintEnd_toStartOf="@id/button_flamethrower"
-        app:layout_constraintStart_toEndOf="@id/guideline_middle"
+        android:layout_marginStart="@dimen/margin_large"
+        app:layout_constraintStart_toEndOf="@id/button_flamethrower"
         app:layout_constraintTop_toTopOf="@id/guideline_top" />
 
     <ImageView
         android:contentDescription="@null"
         android:id="@+id/button_flamethrower"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:background="@drawable/ic_flamethrower"
-        android:layout_marginStart="@dimen/margin_large"
-        app:layout_constraintStart_toEndOf="@id/button_smoke"
+        android:layout_marginStart="@dimen/margin_medium"
+        app:layout_constraintEnd_toStartOf="@id/button_smoke"
+        app:layout_constraintStart_toEndOf="@id/guideline_middle"
         app:layout_constraintTop_toTopOf="@id/guideline_top" />
 
     <ImageView
@@ -130,13 +130,13 @@
         android:id="@+id/exoplayer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/ic_arrow"
+        android:background="@drawable/image"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginHorizontal="210dp"
         android:layout_marginTop="@dimen/margin_xlarge"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/guideline_bottom"
-        app:layout_constraintTop_toBottomOf="@id/button_volume_up" />
+        app:layout_constraintTop_toBottomOf="@id/button_flamethrower" />
 
     <ImageView
         android:contentDescription="@null"
