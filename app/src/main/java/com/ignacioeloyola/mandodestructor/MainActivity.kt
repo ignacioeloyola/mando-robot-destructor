@@ -9,7 +9,11 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.view.MotionEvent
+import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -24,10 +28,27 @@ class MainActivity : AppCompatActivity() {
 
     private var bluetoothManager: BluetoothManager? = null
     private var socket: BluetoothSocket? = null
+    private var previous = true
 
     companion object {
         private const val PERMISSION_CODE = 1001
         private const val BLUETOOTH_MODULE_UUID = "00001101-0000-1000-8000-00805F9B34FB"
+    }
+
+    private val handler = Handler(Looper.getMainLooper())
+    private var dynamicCommand: (() -> String)? = null
+
+    private val commandRunnable = object : Runnable {
+        override fun run() {
+            // Check if the dynamicCommand function is not null before sending
+            dynamicCommand?.let { commandFunction ->
+                val command = commandFunction.invoke()
+                sendCommand(command)
+            }
+
+            // Schedule the next command after 50 milliseconds
+            handler.postDelayed(this, 50)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +68,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        handler.removeCallbacks(commandRunnable)
         socket?.close()
     }
 
@@ -61,7 +83,11 @@ class MainActivity : AppCompatActivity() {
 
             val permissionsToRequest = mutableListOf<String>()
             requiredPermissions.forEach { perm ->
-                if (ContextCompat.checkSelfPermission(this, perm) != PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(
+                        this,
+                        perm
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
                     permissionsToRequest.add(perm)
                 }
             }
@@ -72,23 +98,17 @@ class MainActivity : AppCompatActivity() {
                 // All permissions are already granted
             }
 
+
             var robotBluetoothDevice: BluetoothDevice? = null
             val pairedDevices: Set<BluetoothDevice>? = bluetoothManager?.adapter?.bondedDevices
-            if (pairedDevices != null) {
-                for (device in pairedDevices) {
-                    if (device.address == "MAC ADDRESS FROM MODULE TODO") { // TODO MAC ADDRESS
-                        robotBluetoothDevice = device
-                        break
-                    }
+            pairedDevices?.forEach { device ->
+                if (device.address == "A8:42:E3:90:6A:9A") { // TODO MAC ADDRESS
+                    robotBluetoothDevice = device
                 }
-            } else {
-                Log.e("initBluetooth", "No paired devices found")
             }
 
-            if (robotBluetoothDevice != null) {
-                connectDevice(robotBluetoothDevice)
-            } else {
-                Log.e("initBluetooth", "Robot device not found")
+            robotBluetoothDevice?.let {
+                connectDevice(it)
             }
         }
     }
@@ -119,37 +139,211 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val buttonLaserTouchListener = View.OnTouchListener { _, event ->
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                // Start sending "U" commands when the button is pressed
+                sendCommand("U")
+            }
+            MotionEvent.ACTION_UP -> {
+                // Stop sending commands when the button is released
+                handler.removeCallbacks(commandRunnable)
+                dynamicCommand = null
+                dynamicCommand = { "S" }
+                handler.post(commandRunnable)
+            }
+        }
+        true
+    }
+
+    private val buttonFlamethrowerTouchListener = View.OnTouchListener { _, event ->
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                // Start sending "U" commands when the button is pressed
+                sendCommand("X")
+            }
+            MotionEvent.ACTION_UP -> {
+                // Stop sending commands when the button is released
+                handler.removeCallbacks(commandRunnable)
+                dynamicCommand = null
+                dynamicCommand = { "S" }
+                handler.post(commandRunnable)
+            }
+        }
+        true
+    }
+
+    private val buttonSmokeTouchListener = View.OnTouchListener { _, event ->
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                // Start sending "U" commands when the button is pressed
+                sendCommand("W")
+            }
+            MotionEvent.ACTION_UP -> {
+                // Stop sending commands when the button is released
+                handler.removeCallbacks(commandRunnable)
+                dynamicCommand = null
+                dynamicCommand = { "S" }
+                handler.post(commandRunnable)
+            }
+        }
+        true
+    }
+
+    private val buttonBladesTouchListener = View.OnTouchListener { _, event ->
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                // Start sending "U" commands when the button is pressed
+                if (previous) {
+                    sendCommand("V")
+                } else {
+                    sendCommand("v")
+                }
+                previous = !previous
+            }
+            MotionEvent.ACTION_UP -> {
+                // Stop sending commands when the button is released
+                handler.removeCallbacks(commandRunnable)
+                dynamicCommand = null
+                dynamicCommand = { "S" }
+                handler.post(commandRunnable)
+            }
+        }
+        true
+    }
+
+    private val buttonForwardTouchListener = View.OnTouchListener { _, event ->
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                // Start sending "U" commands when the button is pressed
+                dynamicCommand = { "F" }
+                handler.post(commandRunnable)
+            }
+            MotionEvent.ACTION_UP -> {
+                // Stop sending commands when the button is released
+                handler.removeCallbacks(commandRunnable)
+                dynamicCommand = null
+                dynamicCommand = { "S" }
+                handler.post(commandRunnable)
+            }
+        }
+        true
+    }
+
+    private val buttonBackTouchListener = View.OnTouchListener { _, event ->
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                // Start sending "U" commands when the button is pressed
+                dynamicCommand = { "B" }
+                handler.post(commandRunnable)
+            }
+            MotionEvent.ACTION_UP -> {
+                // Stop sending commands when the button is released
+                handler.removeCallbacks(commandRunnable)
+                dynamicCommand = null
+                dynamicCommand = { "S" }
+                handler.post(commandRunnable)
+            }
+        }
+        true
+    }
+
+    private val buttonLeftTouchListener = View.OnTouchListener { _, event ->
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                // Start sending "U" commands when the button is pressed
+                dynamicCommand = { "L" }
+                handler.post(commandRunnable)
+            }
+            MotionEvent.ACTION_UP -> {
+                // Stop sending commands when the button is released
+                handler.removeCallbacks(commandRunnable)
+                dynamicCommand = null
+                dynamicCommand = { "S" }
+                handler.post(commandRunnable)
+            }
+        }
+        true
+    }
+
+    private val buttonRightTouchListener = View.OnTouchListener { _, event ->
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                // Start sending "U" commands when the button is pressed
+                dynamicCommand = { "R" }
+                handler.post(commandRunnable)
+            }
+            MotionEvent.ACTION_UP -> {
+                // Stop sending commands when the button is released
+                handler.removeCallbacks(commandRunnable)
+                dynamicCommand = null
+                dynamicCommand = { "S" }
+                handler.post(commandRunnable)
+            }
+        }
+        true
+    }
+
+
     private fun initListeners() {
         binding.buttonSettings.setOnClickListener {
             // TODO GO TO SETTINGS
         }
 
         binding.buttonVolumeDown.setOnClickListener {
-            sendCommand("D")
+
         }
 
         binding.buttonVolumeUp.setOnClickListener {
-            sendCommand("U")
-        }
-
-        binding.buttonLaser.setOnClickListener {
 
         }
 
-        binding.buttonBlades.setOnClickListener {
-
+        binding.buttonBlades.setOnTouchListener { v, event ->
+            // Call performClick to handle the click event
+            v.performClick()
+            buttonBladesTouchListener.onTouch(v, event)
         }
 
-        binding.buttonFlamethrower.setOnClickListener {
-
+        binding.buttonFlamethrower.setOnTouchListener { v, event ->
+            // Call performClick to handle the click event
+            v.performClick()
+            buttonFlamethrowerTouchListener.onTouch(v, event)
         }
 
-        binding.buttonSmoke.setOnClickListener {
-
+        binding.buttonSmoke.setOnTouchListener { v, event ->
+            // Call performClick to handle the click event
+            v.performClick()
+            buttonSmokeTouchListener.onTouch(v, event)
         }
 
-        binding.buttonHackerspace.setOnClickListener {
+        binding.buttonLaser.setOnTouchListener { v, event ->
+            // Call performClick to handle the click event
+            v.performClick()
+            buttonLaserTouchListener.onTouch(v, event)
+        }
 
+        binding.buttonForward.setOnTouchListener { v, event ->
+            // Call performClick to handle the click event
+            v.performClick()
+            buttonForwardTouchListener.onTouch(v, event)
+        }
+
+        binding.buttonBack.setOnTouchListener { v, event ->
+            // Call performClick to handle the click event
+            v.performClick()
+            buttonBackTouchListener.onTouch(v, event)
+        }
+
+        binding.buttonLeft.setOnTouchListener { v, event ->
+            // Call performClick to handle the click event
+            v.performClick()
+            buttonLeftTouchListener.onTouch(v, event)
+        }
+
+        binding.buttonRight.setOnTouchListener { v, event ->
+            // Call performClick to handle the click event
+            v.performClick()
+            buttonRightTouchListener.onTouch(v, event)
         }
     }
 
