@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -60,11 +61,7 @@ class MainActivity : AppCompatActivity() {
 
             val permissionsToRequest = mutableListOf<String>()
             requiredPermissions.forEach { perm ->
-                if (ContextCompat.checkSelfPermission(
-                        this,
-                        perm
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
+                if (ContextCompat.checkSelfPermission(this, perm) != PackageManager.PERMISSION_GRANTED) {
                     permissionsToRequest.add(perm)
                 }
             }
@@ -75,20 +72,27 @@ class MainActivity : AppCompatActivity() {
                 // All permissions are already granted
             }
 
-
             var robotBluetoothDevice: BluetoothDevice? = null
             val pairedDevices: Set<BluetoothDevice>? = bluetoothManager?.adapter?.bondedDevices
-            pairedDevices?.forEach { device ->
-                if (device.address == "MAC ADDRESS FROM MODULE TODO") { // TODO MAC ADDRESS
-                    robotBluetoothDevice = device
+            if (pairedDevices != null) {
+                for (device in pairedDevices) {
+                    if (device.address == "MAC ADDRESS FROM MODULE TODO") { // TODO MAC ADDRESS
+                        robotBluetoothDevice = device
+                        break
+                    }
                 }
+            } else {
+                Log.e("initBluetooth", "No paired devices found")
             }
 
-            robotBluetoothDevice?.let {
-                connectDevice(it)
+            if (robotBluetoothDevice != null) {
+                connectDevice(robotBluetoothDevice)
+            } else {
+                Log.e("initBluetooth", "Robot device not found")
             }
         }
     }
+
 
     private fun connectDevice(device: BluetoothDevice) {
         val uuid: UUID = UUID.fromString(BLUETOOTH_MODULE_UUID)
